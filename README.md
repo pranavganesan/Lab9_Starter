@@ -1,6 +1,6 @@
 # Lab 9 - Starter
 
 
-**Live Link:** [file:///Users/pranavg.iyer/Desktop/cse110/Lab9_Starter/index.html](file:///Users/pranavg.iyer/Desktop/cse110/Lab9_Starter/index.html)
+**Live Link:** [https://pranavganesan.github.io/Lab9_Starter/](https://pranavganesan.github.io/Lab9_Starter/)
 
 
