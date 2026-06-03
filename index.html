@@ -1,26 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lab 9</title>
+  <title>Lab 9 - Error Handling</title>
+
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+  <script>
+    window.TrackJS && TrackJS.install({ 
+      token: "YOUR_TOKEN_HERE" // Replace with your actual token
+    });
+  </script>
 
   <style>
-    button {
-      margin: 3px;
-    }
-
-    button:hover {
-      cursor: pointer;
-    }
-
-    #first-num,
-    #second-num {
-      width: 60px;
-    }
-
+    button { margin: 3px; }
+    button:hover { cursor: pointer; }
+    #first-num, #second-num { width: 60px; }
     output {
       border: 1px solid gray;
       display: block;
@@ -29,11 +25,7 @@
       padding: 5px;
       width: 240px;
     }
-
-    main {
-      width: 800px;
-    }
-
+    main { width: 800px; }
     #error-btns {
       column-gap: 5px;
       display: flex;
@@ -41,11 +33,7 @@
       margin-top: 30px;
       row-gap: 5px;
     }
-
-    #error-btns>* {
-      padding: 8px 2px;
-      width: 122px;
-    }
+    #error-btns > * { padding: 8px 2px; width: 150px; }
   </style>
 </head>
 
@@ -69,25 +57,34 @@
     </form>
 
     <section id="error-btns">
-      <button>Console Log</button>
-      <button>Console Error</button>
-      <button>Console Count</button>
-      <button>Console Warn</button>
-      <button>Console Assert</button>
-      <button>Console Clear</button>
-      <button>Console Dir</button>
-      <button>Console dirxml</button>
-      <button>Console Group Start</button>
-      <button>Console Group End</button>
-      <button>Console Table</button>
-      <button>Start Timer</button>
-      <button>End Timer</button>
-      <button>Console Trace</button>
-      <button>Trigger a Global Error</button>
+      <button onclick="console.log('Log Demo: Hello World')">Console Log</button>
+      <button onclick="console.error('Error Demo: Something went wrong')">Console Error</button>
+      <button onclick="console.count('Count Demo')">Console Count</button>
+      <button onclick="console.warn('Warn Demo: Be careful')">Console Warn</button>
+      <button onclick="console.assert(2 === 3, 'Assert Demo: 2 does not equal 3')">Console Assert</button>
+      <button onclick="console.clear()">Console Clear</button>
+      <button onclick="console.dir(document.body)">Console Dir</button>
+      <button onclick="console.dirxml(document.body)">Console dirxml</button>
+      <button onclick="console.group('Group Demo'); console.log('Inside group'); console.groupEnd()">Console Group</button>
+      <button onclick="console.table([{name: 'Lab 9', status: 'In Progress'}])">Console Table</button>
+      <button onclick="console.time('Timer')">Start Timer</button>
+      <button onclick="console.timeEnd('Timer')">End Timer</button>
+      <button onclick="handleTrace()">Console Trace</button>
+      <button onclick="console.log('%c This is a fancy log', 'color: blue; font-weight: bold; background-color: yellow;');">Console Log</button>
+      <button id="global-error-btn">Trigger a Global Error</button>
     </section>
   </main>
 
   <script>
+    // Step 4: Custom Error Class
+    class ValidationError extends Error {
+      constructor(message) {
+        super(message);
+        this.name = "ValidationError";
+      }
+    }
+
+    // Step 3 & 4: Try/Catch/Finally and Custom Throw
     let form = document.querySelector('form');
     form.addEventListener('submit', e => {
       e.preventDefault();
@@ -95,14 +92,46 @@
       let firstNum = document.querySelector('#first-num').value;
       let secondNum = document.querySelector('#second-num').value;
       let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+
+      try {
+        // Validation logic
+        if (firstNum === "" || secondNum === "") {
+          throw new ValidationError("Inputs cannot be empty!");
+        }
+        if (isNaN(firstNum) || isNaN(secondNum)) {
+          throw new ValidationError("Input is not a valid number!");
+        }
+
+        // Using eval (for lab purposes)
+        let result = eval(`${firstNum} ${operator} ${secondNum}`);
+        output.innerHTML = result;
+
+      } catch (err) {
+        console.error(`Calculation Error: ${err.name} - ${err.message}`);
+        output.innerHTML = "⚠️ Error!";
+      } finally {
+        console.log("Calculation attempt finished.");
+      }
     });
 
-    let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
+    // Step 2: Trace helper
+    function handleTrace() {
+      const funcA = () => { funcB(); };
+      const funcB = () => { console.trace(); };
+      funcA();
+    }
 
-    // Start your code here
-    // You may move this JS to another file if you wish
+    // Step 5: Global Error Handler
+    window.onerror = function (message, source, lineno, colno, error) {
+      console.log("Sadly, a global error has occurred. Tracking service notified.");
+      // TrackJS automatically picks this up, but we could manually log it here too.
+      return false; // Let the error propagate so TrackJS sees it
+    };
+
+    document.getElementById('global-error-btn').addEventListener('click', () => {
+      // Triggering an undefined function to cause a global error
+      nonExistentFunction();
+    });
   </script>
 </body>
-
 </html>
